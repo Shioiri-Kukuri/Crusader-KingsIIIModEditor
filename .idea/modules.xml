@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/FinishingWork.iml" filepath="$PROJECT_DIR$/.idea/FinishingWork.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/CK3Editor.iml" filepath="$PROJECT_DIR$/.idea/CK3Editor.iml" />
     </modules>
   </component>
 </project>
