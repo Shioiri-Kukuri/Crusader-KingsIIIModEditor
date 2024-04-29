@@ -1,5 +1,4 @@
 Welcome to CKIII Mod Editor!
-
 Introduction
 CKIII Mod Editor is a graphical editing tool tailored for Crusader Kings III mod creators, streamlining the mod development process and enabling non-programmers to customize game content with ease. The editor provides an intuitive interface for visually editing character attributes, traits, and more, eliminating the need for direct code manipulation and significantly enhancing mod creation efficiency and enjoyment.
 
