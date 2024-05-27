@@ -112,6 +112,8 @@ class CrusaderKingsIIIEditor:
         self.menu_bar = Menu(self.root)
         self.root.config(menu=self.menu_bar)
 
+        self.left_frame = None
+
         # 初始化存放于相对路径的img/attributes文件夹下的图片
         self.attribute_images = load_attribute_images("img/attribute")
 
@@ -187,17 +189,7 @@ class CrusaderKingsIIIEditor:
         print("Valid path detected. Continuing with file processing...")
         character_data = parse_character_data(file_path)
 
-        # 打印解析到的数据到控制台
-        print(f"Name: {character_data.name}")
-        print(f"Martial: {character_data.martial}")
-        print(f"Diplomacy: {character_data.diplomacy}")
-        print(f"Intrigue: {character_data.intrigue}")
-        print(f"Stewardship: {character_data.stewardship}")
-        print(f"Religion: {character_data.religion}")
-        print(f"Culture: {character_data.culture}")
-        print(f"Traits: {', '.join(character_data.traits)}")
-        print(f"Birth Date: {character_data.birth_date}")
-        print(f"Death Date: {character_data.death_date}")
+
 
 
         # 设置通用头像
@@ -215,6 +207,11 @@ class CrusaderKingsIIIEditor:
         right_frame = tk.Frame(self.attributes_frame, padx=10, pady=10)
         left_frame.grid(row=0, column=0, sticky="nsew")  # 左侧Frame
         right_frame.grid(row=0, column=1, sticky="nsew")  # 右侧Frame
+
+        # 在left_frame中预留一个位置用于稍后添加特质图片展示
+        self.trait_frame_placeholder = tk.Frame(left_frame, padx=10, pady=10)  # 预留空间
+        self.trait_frame_placeholder.grid(row=len(character_data.traits) + 3, column=0, sticky="w")
+
 
         # 左侧Frame中的内容布局
         self.name_label.config(text=f"Name: {character_data.name}")
@@ -255,8 +252,8 @@ class CrusaderKingsIIIEditor:
                 value_label = tk.Label(right_frame, text=value, anchor="e")
                 value_label.grid(row=index, column=1, sticky="e", pady=(index * 10, 0))  # 与图片对齐
 
-        #处理特质布局
-        self.display_traits(character_data.traits)
+        # 处理特质布局
+        self.display_traits(character_data.traits, self.trait_frame_placeholder)  # 传递trait_frame的占位符
 
         # 设置Grid的权重，使左右两侧自适应窗口大小
         self.attributes_frame.columnconfigure(0, weight=1)
@@ -264,18 +261,25 @@ class CrusaderKingsIIIEditor:
 
 
 
+    # 更新display_traits函数以适应新的布局
+    def display_traits(self, traits_list, trait_frame_placeholder):
+        """显示角色的特质图片"""
+        for index, trait in enumerate(traits_list, start=1):
+            trait_capitalized = trait.capitalize()
+            if trait_capitalized in self.trait_images:
+                print(f"Displaying trait image for '{trait_capitalized}'")
 
-        # 更新display_traits函数以适应新的布局
-        def display_traits(self, traits_list):
-            """显示角色的特质图片"""
-            for index, trait in enumerate(traits_list, start=1):
-                if trait in self.trait_images:
-                    # 为了控制图片大小，可以使用tkinter的PhotoImage的subsample方法或者使用Pillow调整图片尺寸
-                    # 这里假设你希望图片宽度适应一定的像素，例如100px
-                    resized_image = self.trait_images[trait].copy().subsample(60 / 100)  # 假定原图宽度为60px，调整到目标宽度
-                    trait_img_label = tk.Label(self.trait_frame, image=resized_image, bd=0)
-                    trait_img_label.image = resized_image  # 保留图像引用
-                    trait_img_label.pack(side=tk.LEFT, padx=(0, 5))  # 使用pack布局并设置适当的padx以保持间距
+                # 直接使用已经加载的PhotoImage对象，无需通过PIL再次处理
+                trait_photo_image = self.trait_images[trait_capitalized]
+
+                trait_img_label = tk.Label(trait_frame_placeholder, image=trait_photo_image, bd=0)
+                trait_img_label.image = trait_photo_image  # 防止图片被垃圾回收
+                trait_img_label.pack(side=tk.LEFT, padx=(0, 5))
+
+                print(f"Displayed trait image for '{trait_capitalized}' successfully.")
+            else:
+                print(
+                    f"No image found for trait '{trait_capitalized}'. Keys in trait_images: {list(self.trait_images.keys())}")
 
     def save_file(self):
         """实现保存文件功能"""
