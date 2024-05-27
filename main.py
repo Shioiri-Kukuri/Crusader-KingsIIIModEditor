@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import filedialog, Menu
 from tkinter import messagebox
 import os
+from PIL import ImageTk,Image
 import re
 
 
@@ -24,6 +25,23 @@ class CharacterAttributes:
         self.traits = []
         self.birth_date = None
         self.death_date = None
+
+#加载特质图片
+def load_trait_images(folder_path):
+    # 加载特质图片并返回字典，键为特质名称，值为对应的图片对象
+    trait_images = {}
+    for filename in os.listdir(folder_path):
+        if filename.startswith("60px-Trait_") and filename.endswith(".png"):
+            trait_name = filename[len("60px-Trait_"):-len(".png")]  # 提取特质名称
+            print(f"Attempting to load trait image for '{trait_name}'")
+            img_path = os.path.join(folder_path, filename)
+            try:
+                image = ImageTk.PhotoImage(Image.open(img_path))  # 使用 PIL.Image.open 来打开图片
+                trait_images[trait_name.capitalize()] = image  # 存储图片对象到字典，特质名首字母大写
+                print(f"Loaded trait image for '{trait_name}' successfully.")
+            except IOError as e:
+                print(f"Failed to load trait image for '{trait_name}': {e}")
+    return trait_images
 
 
 #定义解析方法
@@ -98,27 +116,9 @@ class CrusaderKingsIIIEditor:
         self.attribute_images = load_attribute_images("img/attribute")
 
 
-
         # 初始化性格特质图片
-        # Ambitious - 有野心的
-        # Cautious - 谨慎的
-        # Content - 满足的
-        # Deceitful - 欺诈的
-        # Diligent -
-        # Energetic - 精力充沛的
-        # Gregarious - 爱交际的
-        # Hedonistic - 放纵享乐的
-        # Impatient - 急躁的
-        # Inquisitive - 好奇的
-        # Just - 公正
-        # Loyal - 忠诚的
-        # Manipulative - 巧妙操纵的
-        # Paranoid - 多疑的
-        # Prudent - 谨慎的
-        # Slothful - 懒惰的
-        # Shrewd
-        # Trusting - 信任他人的
-        # Vengeful - 寻仇的
+        self.trait_images = load_trait_images("img/trait")
+
 
 
         # 初始化有序属性列
@@ -255,9 +255,27 @@ class CrusaderKingsIIIEditor:
                 value_label = tk.Label(right_frame, text=value, anchor="e")
                 value_label.grid(row=index, column=1, sticky="e", pady=(index * 10, 0))  # 与图片对齐
 
+        #处理特质布局
+        self.display_traits(character_data.traits)
+
         # 设置Grid的权重，使左右两侧自适应窗口大小
         self.attributes_frame.columnconfigure(0, weight=1)
         self.attributes_frame.columnconfigure(1, weight=1)
+
+
+
+
+        # 更新display_traits函数以适应新的布局
+        def display_traits(self, traits_list):
+            """显示角色的特质图片"""
+            for index, trait in enumerate(traits_list, start=1):
+                if trait in self.trait_images:
+                    # 为了控制图片大小，可以使用tkinter的PhotoImage的subsample方法或者使用Pillow调整图片尺寸
+                    # 这里假设你希望图片宽度适应一定的像素，例如100px
+                    resized_image = self.trait_images[trait].copy().subsample(60 / 100)  # 假定原图宽度为60px，调整到目标宽度
+                    trait_img_label = tk.Label(self.trait_frame, image=resized_image, bd=0)
+                    trait_img_label.image = resized_image  # 保留图像引用
+                    trait_img_label.pack(side=tk.LEFT, padx=(0, 5))  # 使用pack布局并设置适当的padx以保持间距
 
     def save_file(self):
         """实现保存文件功能"""
