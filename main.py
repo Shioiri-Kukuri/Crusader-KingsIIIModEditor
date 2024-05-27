@@ -112,7 +112,16 @@ class CrusaderKingsIIIEditor:
         self.menu_bar = Menu(self.root)
         self.root.config(menu=self.menu_bar)
 
+        self.filename = ""  # 添加文件路径存储属性
+        self.data = {}  # 用于存储解析后的数据
+        self.old_values = {}  # 用于存储属性修改前的值
+
         self.left_frame = None
+
+
+        # 初始化character_data为None，将在open_file中根据文件内容进行赋值
+        self.character_data = None
+
 
         # 初始化存放于相对路径的img/attributes文件夹下的图片
         self.attribute_images = load_attribute_images("img/attribute")
@@ -120,8 +129,6 @@ class CrusaderKingsIIIEditor:
 
         # 初始化性格特质图片
         self.trait_images = load_trait_images("img/trait")
-
-
 
         # 初始化有序属性列
         self.attribute_order = ["Martial", "Diplomacy", "Intrigue", "Stewardship"]
@@ -165,7 +172,8 @@ class CrusaderKingsIIIEditor:
         self.intrigue_label = tk.Label(self.attributes_frame, text="Intrigue: ", font=("Arial", 12))
         self.stewardship_label = tk.Label(self.attributes_frame, text="Stewardship: ", font=("Arial", 12))
 
-
+        # 初始化编辑控件
+        self.init_edit_controls(self.character_data)
 
         self.root.mainloop()
 
@@ -189,7 +197,8 @@ class CrusaderKingsIIIEditor:
         print("Valid path detected. Continuing with file processing...")
         character_data = parse_character_data(file_path)
 
-
+        self.filename = file_path  # 记录文件路径
+        self.character_data = parse_character_data(file_path)
 
 
         # 设置通用头像
@@ -249,8 +258,13 @@ class CrusaderKingsIIIEditor:
                 img_label.image = self.attribute_images[attr]
                 img_label.grid(row=index, column=0, sticky="w", pady=(index * 10, 0))  # 根据行号调整间距
 
-                value_label = tk.Label(right_frame, text=value, anchor="e")
-                value_label.grid(row=index, column=1, sticky="e", pady=(index * 10, 0))  # 与图片对齐
+                value_var = tk.StringVar(value=str(value))  # 注意转换为字符串绑定
+                value_entry = tk.Entry(right_frame, textvariable=value_var, width=5)
+                value_entry.grid(row=index, column=1, sticky="e", pady=(index * 10, 0))  # 与图片对齐
+
+                # 立即绑定attr的当前值到lambda函数中
+                value_var.trace("w",
+                                lambda *args, attr_=attr, var=value_var: self.on_attribute_change(attr_, var.get()))
 
         # 处理特质布局
         self.display_traits(character_data.traits, self.trait_frame_placeholder)  # 传递trait_frame的占位符
@@ -293,6 +307,30 @@ class CrusaderKingsIIIEditor:
     def show_readme(self):
         """显示ReadMe帮助信息（这里仅作为占位，需后续完善）"""
         print("Showing ReadMe...")
+
+    def save_to_file(self):
+        """将内存中的数据保存回文件，根据属性值更新文本"""
+        with open(self.filename, 'r+', encoding='utf-8') as file:
+            content = file.read()
+            # 假设简单替换，实际情况可能需要更复杂的解析逻辑
+            for key, value in self.data.items():
+                content = content.replace(f"{key}: {self.old_values[key]}", f"{key}: {value}")
+            # 将指针移到文件开头并截断文件后写入新内容
+            file.seek(0)
+            file.truncate()
+            file.write(content)
+
+    def on_attribute_change(self, attribute, new_value):
+        """属性更改时的回调处理"""
+        if attribute in self.data:
+            self.old_values[attribute] = self.data[attribute]  # 记录旧值，用于比较替换
+            self.data[attribute] = new_value
+            self.save_to_file()
+
+    def init_edit_controls(self, character_data):
+
+        pass
+
 
 if __name__ == "__main__":
     CrusaderKingsIIIEditor()
