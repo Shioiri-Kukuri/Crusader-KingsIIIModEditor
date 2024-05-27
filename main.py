@@ -5,10 +5,9 @@ import os
 import re
 
 
-#"main.py"为主程序,主要功能为翻译文件和文件图形化
-#
-#
-#
+#本项目旨在为Crusader Kings III（CKIII）游戏的Mod制作提供一个便捷、直观的图形化编辑工具。
+# 我们计划运用Python图形用户界面库，如Tkinter或PyQt，构建一款小型的Crusader Kings III Mod编辑器。
+# 该编辑器的核心功能是将复杂的Mod代码以图文并茂的形式呈现，支持用户进行可视化操作，极大提升Mod编辑的易用性和效率。
 
 #定义需要解析文件的结构体
 class CharacterAttributes:
@@ -30,33 +29,44 @@ def parse_character_data(file_path):
     attributes = CharacterAttributes()
     with open(file_path, 'r', encoding='utf-8') as file:
         content = file.read()
-        # 匹配name、martial、diplomacy等可修改的属性
+
+        # 调整属性匹配，使其更灵活地处理前后空白和注释
         for attr in ['name', 'martial', 'diplomacy', 'intrigue', 'stewardship', 'religion', 'culture']:
-            pattern = re.compile(f'{attr}\s*=\s*(["\']?)(.*?)(\\1)?')
+            # 此处使用更严格的匹配来确保匹配到完整的属性值直到遇到注释开始、下一个属性或者块结束
+            pattern_str = attr + r'\s*=\s*([^#=]+?)[\s#}]'
+            pattern = re.compile(pattern_str)
             match = pattern.search(content)
             if match:
-                value = match.group(2).strip()
+                raw_value = match.group(1).strip()  # 分割并去除空白
+
+                # 对于name属性特别处理，去除可能的引号
+                if attr == 'name':
+                    raw_value = raw_value.strip('\'"')  # 去除引号
+
+                value = raw_value
+
+                # 对于数值属性的处理逻辑保持不变
                 if attr in ['martial', 'diplomacy', 'intrigue', 'stewardship']:
-                    # 检查值是否为空或仅包含空白字符
-                    if value and value.strip():
-                        value = int(value)  # 将这些属性转换为整数
-                    else:
-                        print(f"Warning: Empty or whitespace-only value found for attribute '{attr}', skipping conversion.")
+                    try:
+                        value = int(value)
+                    except ValueError:
+                        print(f"Warning: Unable to convert '{raw_value}' for attribute '{attr}' to integer.")
+
                 setattr(attributes, attr, value)
 
-        # 匹配traits
+        # 特性(trait)匹配保持不变
         trait_pattern = re.compile('trait\s*=\s*([\w_]+)')
         traits = trait_pattern.findall(content)
         attributes.traits = traits
 
-        # 匹配出生和死亡日期
+        # 精简日期匹配逻辑，确保只匹配必要的信息
         date_pattern = re.compile(r'(\d+)\.(\d+)\.(\d+)\s*=\s*\{\s*(birth|death)\s*=\s*yes\s*\}')
         dates = date_pattern.findall(content)
-        for date in dates:
-            year, month, day, event_type = map(int, date)
-            if event_type == 1:  # birth
+        for date_match in dates:
+            year, month, day, event_type = date_match
+            if event_type == 'birth':
                 attributes.birth_date = f"{year}.{month}.{day}"
-            elif event_type == 2:  # death
+            elif event_type == 'death':
                 attributes.death_date = f"{year}.{month}.{day}"
 
     return attributes
