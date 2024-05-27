@@ -1,0 +1,30 @@
+#符号可以在文件中作为注释
+145665 = {
+	name = "Rahad"						#展示并提供修改
+	dna = lyon_twin_dna_entry			#不展示，同时不提供修改，使用编辑器创建新角色时不附带该属性
+	dynasty = 2100001                   #不展示，同时不提供修改，使用编辑器创建新角色时不附带该属性
+	
+	martial = 14						#展示并提供修改并提供修改
+	diplomacy = 23						#展示并提供修改
+	intrigue = 10						#展示并提供修改
+	stewardship = 21					#展示并提供修改
+	
+	religion = catholic	#展示并提供修改
+	culture = french#展示并提供修改
+	
+	trait = diligent#展示并提供修改
+	trait = just#展示并提供修改
+	
+	
+	disallow_random_traits = yes	#不展示，同时不提供修改，使用编辑器创建新角色时不附带该属性
+	father = 999003					#不展示，同时不提供修改，使用编辑器创建新角色时不附带该属性
+	mother = 999004					#不展示，同时不提供修改，使用编辑器创建新角色时不附带该属性
+	
+	#展示并提供修改生卒年份，并提供修改
+	846.7.29 = {
+		birth = yes
+	}
+	920.5.25 = {
+		death = yes
+	}
+}

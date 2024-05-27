@@ -1,8 +1,10 @@
+import sys
 import tkinter as tk
 from tkinter import filedialog, Menu
 from tkinter import messagebox
 import os
 import re
+
 
 
 #本项目旨在为Crusader Kings III（CKIII）游戏的Mod制作提供一个便捷、直观的图形化编辑工具。
@@ -71,12 +73,54 @@ def parse_character_data(file_path):
 
     return attributes
 
+def load_attribute_images(attribute_folder):
+    images = {}
+    for attribute in ["Martial", "Diplomacy", "Intrigue", "Stewardship"]:
+        img_path = os.path.join(attribute_folder, rf"{attribute}.png")
+        print(f"Attempting to load: {img_path}")
+        try:
+            img = tk.PhotoImage(file=img_path)
+            images[attribute] = img
+        except Exception as e:
+            print(f"Failed to load image for {attribute}: {e}")
+    return images
 
 class CrusaderKingsIIIEditor:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("Crusader Kings III Mod Editor")
-        self.root.geometry("800x600")  # 添加这行代码以设置窗口大小为800x600像素
+        self.root.geometry("800x600")
+
+        self.menu_bar = Menu(self.root)
+        self.root.config(menu=self.menu_bar)
+
+        # 初始化存放于相对路径的img/attributes文件夹下的图片
+        self.attribute_images = load_attribute_images("img/attribute")
+
+        # 初始化性格特质图片
+        # Ambitious - 有野心的
+        # Cautious - 谨慎的
+        # Content - 满足的
+        # Deceitful - 欺诈的
+        # Diligent -
+        # Energetic - 精力充沛的
+        # Gregarious - 爱交际的
+        # Hedonistic - 放纵享乐的
+        # Impatient - 急躁的
+        # Inquisitive - 好奇的
+        # Just - 公正
+        # Loyal - 忠诚的
+        # Manipulative - 巧妙操纵的
+        # Paranoid - 多疑的
+        # Prudent - 谨慎的
+        # Slothful - 懒惰的
+        # Shrewd
+        # Trusting - 信任他人的
+        # Vengeful - 寻仇的
+
+
+        # 初始化有序属性列
+        self.attribute_order = ["Martial", "Diplomacy", "Intrigue", "Stewardship"]
 
         # 创建顶部菜单栏
         self.menu_bar = Menu(self.root)
@@ -101,6 +145,23 @@ class CrusaderKingsIIIEditor:
         # 简单占位符，用于后续添加编辑器主界面
         self.editor_frame = tk.Frame(self.root, padx=10, pady=10)
         self.editor_frame.pack(fill=tk.BOTH, expand=True)
+
+        # 新增图像部件和属性显示标签
+        self.character_image_label = tk.Label(self.root)
+        self.character_image_label.pack(pady=10)
+
+        self.attributes_frame = tk.Frame(self.root, padx=10, pady=10)
+        self.attributes_frame.pack(fill=tk.BOTH, expand=True)
+
+        self.name_label = tk.Label(self.attributes_frame, text="Name: ", font=("Arial", 12))
+        self.name_label.grid(row=0, column=0, sticky="w", pady=(0, 10))
+
+        self.martial_label = tk.Label(self.attributes_frame, text="Martial: ", font=("Arial", 12))
+        self.diplomacy_label = tk.Label(self.attributes_frame, text="Diplomacy: ", font=("Arial", 12))
+        self.intrigue_label = tk.Label(self.attributes_frame, text="Intrigue: ", font=("Arial", 12))
+        self.stewardship_label = tk.Label(self.attributes_frame, text="Stewardship: ", font=("Arial", 12))
+
+
 
         self.root.mainloop()
 
@@ -135,6 +196,58 @@ class CrusaderKingsIIIEditor:
         print(f"Traits: {', '.join(character_data.traits)}")
         print(f"Birth Date: {character_data.birth_date}")
         print(f"Death Date: {character_data.death_date}")
+
+        # 设置通用头像
+        image_path = "img/PlaceholderHead.png"
+        try:
+            self.character_image = tk.PhotoImage(file=image_path)
+            self.character_image_label.config(image=self.character_image)
+        except Exception as e:
+            print(f"Error loading image: {e}", file=sys.stderr)
+            messagebox.showerror("Error", f"Failed to load image: {e}")
+            return
+
+        # 姓名标签保持原样
+        self.name_label.config(text=f"Name: {character_data.name}")
+        self.name_label.grid(row=0, column=0, sticky="w", pady=(0, 10))
+
+        # 宗教、文化等信息布局调整，确保它们在左侧对齐
+        religion_label = tk.Label(self.attributes_frame, text=f"Religion: {character_data.religion}", anchor="w",
+                                  justify=tk.LEFT)
+        religion_label.grid(row=len(self.attribute_order) + 1, column=0, sticky="w", pady=(10, 0))
+
+        culture_label = tk.Label(self.attributes_frame, text=f"Culture: {character_data.culture}", anchor="w",
+                                 justify=tk.LEFT)
+        culture_label.grid(row=len(self.attribute_order) + 2, column=0, sticky="w", pady=(0, 10))
+
+        # 出生死亡日期的布局调整，同样确保在左侧
+        birth_death_frame = tk.Frame(self.attributes_frame)
+        birth_death_frame.grid(row=len(self.attribute_order) + 3, column=0, sticky="w", pady=(10, 0))
+
+        birth_label = tk.Label(birth_death_frame, text=f"Birth Date: {character_data.birth_date}", anchor="w",
+                               justify=tk.LEFT)
+        birth_label.pack(side=tk.LEFT, padx=(0, 10))
+
+        death_label = tk.Label(birth_death_frame, text=f"Death Date: {character_data.death_date}", anchor="w",
+                               justify=tk.LEFT)
+        death_label.pack(side=tk.LEFT)
+
+        # 属性布局调整：确保图片在左侧，数值在右侧
+        for attr, value in [
+            ("Martial", character_data.martial),
+            ("Diplomacy", character_data.diplomacy),
+            ("Intrigue", character_data.intrigue),
+            ("Stewardship", character_data.stewardship),
+        ]:
+            if attr in self.attribute_images:
+                row_index = self.attribute_order.index(attr) + 1
+                img_label = tk.Label(self.attributes_frame, image=self.attribute_images[attr])
+                img_label.image = self.attribute_images[attr]
+                img_label.grid(row=row_index, column=0, sticky="w")  # 图片在左侧
+
+                value_label = tk.Label(self.attributes_frame, text=value, anchor="w")
+                # 调整数值标签的列位置到右侧
+                value_label.grid(row=row_index, column=1, sticky="e")  # sticky="e" 表示右对齐
 
 
     def save_file(self):
