@@ -97,6 +97,8 @@ class CrusaderKingsIIIEditor:
         # 初始化存放于相对路径的img/attributes文件夹下的图片
         self.attribute_images = load_attribute_images("img/attribute")
 
+
+
         # 初始化性格特质图片
         # Ambitious - 有野心的
         # Cautious - 谨慎的
@@ -197,6 +199,7 @@ class CrusaderKingsIIIEditor:
         print(f"Birth Date: {character_data.birth_date}")
         print(f"Death Date: {character_data.death_date}")
 
+
         # 设置通用头像
         image_path = "img/PlaceholderHead.png"
         try:
@@ -207,22 +210,27 @@ class CrusaderKingsIIIEditor:
             messagebox.showerror("Error", f"Failed to load image: {e}")
             return
 
-        # 姓名标签保持原样
+        # 初始化左右两侧的Frame
+        left_frame = tk.Frame(self.attributes_frame, padx=10, pady=10)
+        right_frame = tk.Frame(self.attributes_frame, padx=10, pady=10)
+        left_frame.grid(row=0, column=0, sticky="nsew")  # 左侧Frame
+        right_frame.grid(row=0, column=1, sticky="nsew")  # 右侧Frame
+
+        # 左侧Frame中的内容布局
         self.name_label.config(text=f"Name: {character_data.name}")
         self.name_label.grid(row=0, column=0, sticky="w", pady=(0, 10))
 
-        # 宗教、文化等信息布局调整，确保它们在左侧对齐
-        religion_label = tk.Label(self.attributes_frame, text=f"Religion: {character_data.religion}", anchor="w",
-                                  justify=tk.LEFT)
-        religion_label.grid(row=len(self.attribute_order) + 1, column=0, sticky="w", pady=(10, 0))
+        row_index = 1  # 初始化行索引
+        religion_label = tk.Label(left_frame, text=f"Religion: {character_data.religion}", anchor="w", justify=tk.LEFT)
+        religion_label.grid(row=row_index, column=0, sticky="w", pady=(0, 10))
+        row_index += 1  # 增加行索引
 
-        culture_label = tk.Label(self.attributes_frame, text=f"Culture: {character_data.culture}", anchor="w",
-                                 justify=tk.LEFT)
-        culture_label.grid(row=len(self.attribute_order) + 2, column=0, sticky="w", pady=(0, 10))
+        culture_label = tk.Label(left_frame, text=f"Culture: {character_data.culture}", anchor="w", justify=tk.LEFT)
+        culture_label.grid(row=row_index, column=0, sticky="w", pady=(0, 10))
+        row_index += 1  # 增加行索引
 
-        # 出生死亡日期的布局调整，同样确保在左侧
-        birth_death_frame = tk.Frame(self.attributes_frame)
-        birth_death_frame.grid(row=len(self.attribute_order) + 3, column=0, sticky="w", pady=(10, 0))
+        birth_death_frame = tk.Frame(left_frame)
+        birth_death_frame.grid(row=row_index, column=0, sticky="w", pady=(0, 10))
 
         birth_label = tk.Label(birth_death_frame, text=f"Birth Date: {character_data.birth_date}", anchor="w",
                                justify=tk.LEFT)
@@ -232,23 +240,24 @@ class CrusaderKingsIIIEditor:
                                justify=tk.LEFT)
         death_label.pack(side=tk.LEFT)
 
-        # 属性布局调整：确保图片在左侧，数值在右侧
-        for attr, value in [
+        # 右侧Frame中的属性布局
+        for index, (attr, value) in enumerate([
             ("Martial", character_data.martial),
             ("Diplomacy", character_data.diplomacy),
             ("Intrigue", character_data.intrigue),
             ("Stewardship", character_data.stewardship),
-        ]:
+        ]):
             if attr in self.attribute_images:
-                row_index = self.attribute_order.index(attr) + 1
-                img_label = tk.Label(self.attributes_frame, image=self.attribute_images[attr])
+                img_label = tk.Label(right_frame, image=self.attribute_images[attr])
                 img_label.image = self.attribute_images[attr]
-                img_label.grid(row=row_index, column=0, sticky="w")  # 图片在左侧
+                img_label.grid(row=index, column=0, sticky="w", pady=(index * 10, 0))  # 根据行号调整间距
 
-                value_label = tk.Label(self.attributes_frame, text=value, anchor="w")
-                # 调整数值标签的列位置到右侧
-                value_label.grid(row=row_index, column=1, sticky="e")  # sticky="e" 表示右对齐
+                value_label = tk.Label(right_frame, text=value, anchor="e")
+                value_label.grid(row=index, column=1, sticky="e", pady=(index * 10, 0))  # 与图片对齐
 
+        # 设置Grid的权重，使左右两侧自适应窗口大小
+        self.attributes_frame.columnconfigure(0, weight=1)
+        self.attributes_frame.columnconfigure(1, weight=1)
 
     def save_file(self):
         """实现保存文件功能"""
