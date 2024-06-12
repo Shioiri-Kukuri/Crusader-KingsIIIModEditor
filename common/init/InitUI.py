@@ -1,7 +1,9 @@
-
+import sys
 import tkinter as tk
-from tkinter import  Menu
-
+from tkinter import Menu, messagebox
+from common.init.InitImg import Imginit
+from util.FileOpener import FileOpener
+from util.FileSaver import FileSaver
 
 
 class Gui:
@@ -13,22 +15,22 @@ class Gui:
         self.menu_bar = Menu(self.root)
         self.root.config(menu=self.menu_bar)
 
-        self.filename = ""  # 添加文件路径存储属性
-        self.data = {}  # 用于存储解析后的数据
-        self.old_values = {}  # 用于存储属性修改前的值
+        self.filename = ""
+        self.data = {}
+        self.old_values = {}
 
         self.left_frame = None
-
-        # 初始化character_data为None，将在open_file中根据文件内容进行赋值
         self.character_data = None
 
-        # 初始化存放于相对路径的img/attributes文件夹下的图片
-        self.attribute_images = load_attribute_images("img/attribute")
+        # 实例化辅助类
+        self.file_opener = FileOpener(self)
+        self.file_saver = FileSaver(self)
 
-        # 初始化性格特质图片
-        self.trait_images = load_trait_images("img/trait")
+        img_loader = Imginit()  # 实例化Imginit类
 
-        # 初始化有序属性列
+        self.attribute_images = img_loader.load_attribute_images("img/attribute")
+        self.trait_images = img_loader.load_trait_images("img/trait")
+
         self.attribute_order = ["Martial", "Diplomacy", "Intrigue", "Stewardship"]
 
         # 创建顶部菜单栏
@@ -37,8 +39,8 @@ class Gui:
 
         # File菜单
         self.file_menu = Menu(self.menu_bar, tearoff=0)
-        self.file_menu.add_command(label="Open File", command=self.open_file)
-        self.file_menu.add_command(label="Save File", command=self.save_file)
+        self.file_menu.add_command(label="Open File", command=self.file_opener.open_file)
+        self.file_menu.add_command(label="Save File", command=self.file_saver.save_file)
         self.menu_bar.add_cascade(label="File", menu=self.file_menu)
 
         # Edit菜单
@@ -70,8 +72,22 @@ class Gui:
         self.intrigue_label = tk.Label(self.attributes_frame, text="Intrigue: ", font=("Arial", 12))
         self.stewardship_label = tk.Label(self.attributes_frame, text="Stewardship: ", font=("Arial", 12))
 
-        # 初始化编辑控件
-        self.init_edit_controls(self.character_data)
+
+
         self.root.mainloop()
+
+    def show_settings(self):
+        """显示设置窗口（这里仅作为占位，需后续完善）"""
+        print("Showing Settings...")
+
+    def show_readme(self):
+        """显示ReadMe帮助信息（这里仅作为占位，需后续完善）"""
+        print("Showing ReadMe...")
+
+    def init_edit_controls(self, character_data):
+        pass
+
+
+
 
 
