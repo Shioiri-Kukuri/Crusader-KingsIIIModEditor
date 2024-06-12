@@ -1,0 +1,11 @@
+# 打印解析到的数据到控制台
+        print(f"Name: {character_data.name}")
+        print(f"Martial: {character_data.martial}")
+        print(f"Diplomacy: {character_data.diplomacy}")
+        print(f"Intrigue: {character_data.intrigue}")
+        print(f"Stewardship: {character_data.stewardship}")
+        print(f"Religion: {character_data.religion}")
+        print(f"Culture: {character_data.culture}")
+        print(f"Traits: {', '.join(character_data.traits)}")
+        print(f"Birth Date: {character_data.birth_date}")
+        print(f"Death Date: {character_data.death_date}")
