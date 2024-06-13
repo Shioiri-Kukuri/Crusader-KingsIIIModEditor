@@ -159,18 +159,26 @@ class Gui:
         self.update_birth_death(character_data.birth_date, character_data.death_date)
 
     def update_info_label(self, label_text, value):
+        FONT_SIZE = 12
+
         """创建或更新左侧属性面板的文本标签。"""
-        tk.Label(self.attributes_frame, text=f"{label_text} {value}", anchor="w", justify=tk.LEFT).grid(
+        label_font = ("Arial", FONT_SIZE)  # 使用之前定义的FONT_SIZE
+        tk.Label(self.attributes_frame, text=f"{label_text} {value}", font=label_font, anchor="w",
+                 justify=tk.LEFT).grid(
             row=len(self.attributes_frame.winfo_children()), column=0, sticky="w", pady=(0, 10))
 
     def update_birth_death(self, birth_date, death_date):
+        FONT_SIZE = 12
+
         """更新出生和死亡日期。"""
         birth_death_frame = tk.Frame(self.attributes_frame)
         birth_death_frame.grid(row=len(self.attributes_frame.winfo_children()), column=0, sticky="w", pady=(0, 10))
 
-        tk.Label(birth_death_frame, text=f"Birth Date: {birth_date}", anchor="w", justify=tk.LEFT).pack(side=tk.LEFT,
-                                                                                                        padx=(0, 10))
-        tk.Label(birth_death_frame, text=f"Death Date: {death_date}", anchor="w", justify=tk.LEFT).pack(side=tk.LEFT)
+        label_font = ("Arial", FONT_SIZE)  # 使用之前定义的FONT_SIZE
+        tk.Label(birth_death_frame, text=f"Birth Date: {birth_date}", font=label_font, anchor="w",
+                 justify=tk.LEFT).pack(side=tk.LEFT, padx=(0, 10))
+        tk.Label(birth_death_frame, text=f"Death Date: {death_date}", font=label_font, anchor="w",
+                 justify=tk.LEFT).pack(side=tk.LEFT)
 
     def update_right_side(self, character_data):
         """更新右侧属性数值和特质。"""
