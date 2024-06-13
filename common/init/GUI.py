@@ -44,11 +44,10 @@ class Gui:
         # 初始化菜单
         self.setup_menus()
 
-        # 初始化图像资源
-        img_loader = Imginit()
-        self.attribute_images = img_loader.load_attribute_images("img/attribute")
-        self.trait_images = img_loader.load_trait_images("img/trait")
-        self.attribute_order = ["Martial", "Diplomacy", "Intrigue", "Stewardship"]
+        # 创建Imginit实例并使用它来加载图像资源
+        self.img_loader = Imginit()
+        self.attribute_images = self.img_loader.load_attribute_images()
+        self.trait_images = self.img_loader.load_trait_images()
 
         # 界面布局占位符
         self.name_label = tk.Label(self.attributes_frame, text="Name: ", font=("Arial", self.FONT_SIZE))

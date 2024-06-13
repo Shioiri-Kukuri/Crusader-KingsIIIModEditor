@@ -1,4 +1,4 @@
-from common.init.InitUI import Gui
+from common.init.GUI import Gui
 
 
 
