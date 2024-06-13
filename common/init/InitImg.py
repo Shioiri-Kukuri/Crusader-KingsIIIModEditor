@@ -43,26 +43,30 @@ class Imginit:
         return images
 
     # 更新display_traits函数以适应新的布局
-    def display_traits(self, traits_list, trait_frame_placeholder):
+    def display_traits(self, traits_list, trait_frame):
         """
         在界面上显示特质图片。
 
         :param traits_list: 要显示的特质名称列表。
         :param trait_frame_placeholder: Tkinter Frame对象，用于放置特质图片标签。
         """
-        for index, trait in enumerate(traits_list, start=1):
-            trait_capitalized = trait.capitalize()
-            if trait_capitalized in self.trait_images:
-                print(f"Displaying trait image for '{trait_capitalized}'")
+        COLS = 4  # 每行特质数
+        ROWS = 3  # 最大行数
 
-                # 直接使用已经加载的PhotoImage对象，无需通过PIL再次处理
-                trait_photo_image = self.trait_images[trait_capitalized]
+        # 清空之前的内容
+        for widget in trait_frame.winfo_children():
+            widget.destroy()
 
-                trait_img_label = tk.Label(trait_frame_placeholder, image=trait_photo_image, bd=0)
-                trait_img_label.image = trait_photo_image  # 防止图片被垃圾回收
-                trait_img_label.pack(side=tk.LEFT, padx=(0, 5))
+        for idx, trait_name in enumerate(traits_list[:COLS * ROWS]):  # 限制显示的特质数量
+            row = idx // COLS
+            col = idx % COLS
+            capitalized_trait_name = trait_name.capitalize()
 
-                print(f"Displayed trait image for '{trait_capitalized}' successfully.")
-            else:
-                print(
-                    f"No image found for trait '{trait_capitalized}'. Keys in trait_images: {list(self.trait_images.keys())}")
+            if capitalized_trait_name in self.trait_images:
+                img_label = tk.Label(trait_frame, image=self.trait_images[capitalized_trait_name], padx=5, pady=5)
+                img_label.image = self.trait_images[capitalized_trait_name]
+                img_label.grid(row=row, column=col, sticky="w", pady=(0, 10))
+
+            # 配置列宽和行高以适应特质图片
+            trait_frame.columnconfigure(col, weight=1)
+            trait_frame.rowconfigure(row, weight=1)

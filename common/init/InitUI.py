@@ -22,6 +22,10 @@ class Gui:
         self.old_values = {}
         self.character_data = None
 
+        FONT_SIZE = 12
+
+
+
         # 初始化FileOpener实例
         self.file_opener = FileOpener(self)
 
@@ -37,11 +41,6 @@ class Gui:
         self.attributes_frame = tk.Frame(self.editor_frame, padx=10, pady=10)
         self.attributes_frame.pack(fill=tk.BOTH, expand=True)
 
-        # 创建trait_frame placeholder
-        self.trait_frame_placeholder = tk.Frame(self.attributes_frame, padx=10, pady=10)
-        self.trait_frame_placeholder.grid(row=len(self.attributes_frame.winfo_children()) + 1, column=0, sticky="w",
-                                          pady=(0, 10))
-
         # 初始化菜单
         self.setup_menus()
 
@@ -52,7 +51,7 @@ class Gui:
         self.attribute_order = ["Martial", "Diplomacy", "Intrigue", "Stewardship"]
 
         # 界面布局占位符
-        self.name_label = tk.Label(self.attributes_frame, text="Name: ", font=("Arial", 12))
+        self.name_label = tk.Label(self.attributes_frame, text="Name: ", font=("Arial", FONT_SIZE))
         self.name_label.grid(row=0, column=0, sticky="w", pady=(0, 10))
 
         # 初始化FileOpener实例
@@ -185,7 +184,14 @@ class Gui:
 
         # 特质显示
         print("Before calling display_traits")
-        self.display_traits(character_data.traits, self.trait_frame_placeholder)
+
+        # 在属性数值下方创建特质显示区域
+        self.trait_frame = tk.Frame(self.editor_frame, padx=20, pady=20)  # 增加与左侧容器的水平间距
+        self.trait_frame.pack(side=tk.RIGHT, anchor=tk.N, fill=tk.BOTH)  # 调整布局以适应右侧
+
+        # 调用特质显示方法，现在在新的trait_frame中
+        self.display_traits(character_data.traits, self.trait_frame)
+
         print("After calling display_traits")
 
     def create_attribute_entry(self, attribute, value, index):
