@@ -3,6 +3,8 @@ import tkinter as tk
 from tkinter import Menu, messagebox
 from common.init.InitImg import Imginit
 from util.FileOpener import FileOpener
+from util.Help import Help
+from util.Setting import Setting
 
 
 class Gui:
@@ -22,9 +24,7 @@ class Gui:
         self.old_values = {}
         self.character_data = None
 
-        FONT_SIZE = 12
-
-
+        self.FONT_SIZE = 12
 
         # 初始化FileOpener实例
         self.file_opener = FileOpener(self)
@@ -51,7 +51,7 @@ class Gui:
         self.attribute_order = ["Martial", "Diplomacy", "Intrigue", "Stewardship"]
 
         # 界面布局占位符
-        self.name_label = tk.Label(self.attributes_frame, text="Name: ", font=("Arial", FONT_SIZE))
+        self.name_label = tk.Label(self.attributes_frame, text="Name: ", font=("Arial", self.FONT_SIZE))
         self.name_label.grid(row=0, column=0, sticky="w", pady=(0, 10))
 
         # 初始化FileOpener实例
@@ -64,21 +64,16 @@ class Gui:
         self.file_menu.add_command(label="Open File", command=self.file_opener.open_file)
         self.menu_bar.add_cascade(label="File", menu=self.file_menu)
 
+        self.settings_instance = Setting()
         self.settings_menu = Menu(self.menu_bar, tearoff=0)
-        self.settings_menu.add_command(label="Settings", command=self.show_settings)
+        self.settings_menu.add_command(label="Settings", command= self.settings_instance.show_settings)
         self.menu_bar.add_cascade(label="Settings", menu=self.settings_menu)
 
+        self.help_instance = Help()
         self.help_menu = Menu(self.menu_bar, tearoff=0)
-        self.help_menu.add_command(label="ReadMe", command=self.show_readme)
+        self.help_menu.add_command(label="ReadMe", command= self.help_instance.show_readme)
         self.menu_bar.add_cascade(label="Help", menu=self.help_menu)
 
-    def show_settings(self):
-        """显示设置窗口。"""
-        print("Showing Settings...")
-
-    def show_readme(self):
-        """显示帮助文档。"""
-        print("Showing ReadMe...")
 
     def on_attribute_change(self, attribute, new_value):
         """
@@ -159,22 +154,18 @@ class Gui:
         self.update_birth_death(character_data.birth_date, character_data.death_date)
 
     def update_info_label(self, label_text, value):
-        FONT_SIZE = 12
-
         """创建或更新左侧属性面板的文本标签。"""
-        label_font = ("Arial", FONT_SIZE)  # 使用之前定义的FONT_SIZE
+        label_font = ("Arial", self.FONT_SIZE)  # 使用之前定义的FONT_SIZE
         tk.Label(self.attributes_frame, text=f"{label_text} {value}", font=label_font, anchor="w",
                  justify=tk.LEFT).grid(
             row=len(self.attributes_frame.winfo_children()), column=0, sticky="w", pady=(0, 10))
 
     def update_birth_death(self, birth_date, death_date):
-        FONT_SIZE = 12
-
         """更新出生和死亡日期。"""
         birth_death_frame = tk.Frame(self.attributes_frame)
         birth_death_frame.grid(row=len(self.attributes_frame.winfo_children()), column=0, sticky="w", pady=(0, 10))
 
-        label_font = ("Arial", FONT_SIZE)  # 使用之前定义的FONT_SIZE
+        label_font = ("Arial", self.FONT_SIZE)  # 使用之前定义的FONT_SIZE
         tk.Label(birth_death_frame, text=f"Birth Date: {birth_date}", font=label_font, anchor="w",
                  justify=tk.LEFT).pack(side=tk.LEFT, padx=(0, 10))
         tk.Label(birth_death_frame, text=f"Death Date: {death_date}", font=label_font, anchor="w",
@@ -216,3 +207,7 @@ class Gui:
             # 绑定回调
             value_var.trace("w",
                             lambda *args, attr_=attribute, var=value_var: self.on_attribute_change(attr_, var.get()))
+
+
+
+
