@@ -25,8 +25,6 @@ class Gui:
         # 初始化FileOpener实例
         self.file_opener = FileOpener(self)
 
-
-
         # 初始化编辑器主界面框架
         self.editor_frame = tk.Frame(self.root, padx=10, pady=10)
         self.editor_frame.pack(fill=tk.BOTH, expand=True)
@@ -39,8 +37,10 @@ class Gui:
         self.attributes_frame = tk.Frame(self.editor_frame, padx=10, pady=10)
         self.attributes_frame.pack(fill=tk.BOTH, expand=True)
 
-        # 初始化trait_frame_placeholder
-        self.trait_frame_placeholder = tk.Frame(self.attributes_frame)
+        # 创建trait_frame placeholder
+        self.trait_frame_placeholder = tk.Frame(self.attributes_frame, padx=10, pady=10)
+        self.trait_frame_placeholder.grid(row=len(self.attributes_frame.winfo_children()) + 1, column=0, sticky="w",
+                                          pady=(0, 10))
 
         # 初始化菜单
         self.setup_menus()
@@ -92,19 +92,34 @@ class Gui:
         self.character_data.set_attribute(attribute, int(new_value))  # 假设有一个set_attribute方法
 
     def display_traits(self, traits_list, trait_frame_placeholder):
-        """
-        在指定的Frame中显示特质图片。
 
-        :param traits_list: 特质名称列表。
-        :param trait_frame_placeholder: 特质图片将被放置的Frame。
-        """
+        if trait_frame_placeholder.grid_slaves():
+            for child in trait_frame_placeholder.winfo_children():
+                child.destroy()
+
         row_index = 0
+        max_cols = len(traits_list)
+        if max_cols > 0:
+            trait_frame_placeholder.grid_columnconfigure(0, weight=1)  # 设置列可扩展
+
         for trait_name in traits_list:
-            if trait_name in self.trait_images:
-                img_label = tk.Label(trait_frame_placeholder, image=self.trait_images[trait_name])
-                img_label.image = self.trait_images[trait_name]  # 防止图像被垃圾回收
+            capitalized_trait_name = trait_name.capitalize()
+            if capitalized_trait_name in self.trait_images:
+                print(f"{capitalized_trait_name} trait image")
+                img_label = tk.Label(trait_frame_placeholder, image=self.trait_images[capitalized_trait_name])
+                img_label.image = self.trait_images[capitalized_trait_name]  # 防止图像被垃圾回收
                 img_label.grid(row=row_index, column=0, sticky="w", pady=(row_index * 10, 0))
+
+                if max_cols > 1:
+                    # 如果有多列，调整列宽以适应图片
+                    trait_frame_placeholder.columnconfigure(row_index % max_cols, weight=1)
+
                 row_index += 1
+            else:
+                print(f"No image for trait: {capitalized_trait_name}")
+
+        # 强制刷新
+        self.root.update()
 
     def update_character(self, character_data):
         """
@@ -118,7 +133,7 @@ class Gui:
 
         # 更新图像和基本信息
         # 使用默认占位符图像路径
-        default_image_path = "img/PlaceholderHead.png"  # 确保这个路径是正确的默认图像路径
+        default_image_path = "img/PlaceholderHead.png"  # 确保这个路径是正确默认图像路径
         self.update_character_image(default_image_path)
         self.name_label.config(text=f"Name: {character_data.name}")
 
@@ -146,7 +161,6 @@ class Gui:
 
     def update_info_label(self, label_text, value):
         """创建或更新左侧属性面板的文本标签。"""
-        # 假设存在一个方法或变量来管理这些标签，这里简化处理
         tk.Label(self.attributes_frame, text=f"{label_text} {value}", anchor="w", justify=tk.LEFT).grid(
             row=len(self.attributes_frame.winfo_children()), column=0, sticky="w", pady=(0, 10))
 
@@ -170,7 +184,9 @@ class Gui:
             self.create_attribute_entry(attr, value, index)
 
         # 特质显示
+        print("Before calling display_traits")
         self.display_traits(character_data.traits, self.trait_frame_placeholder)
+        print("After calling display_traits")
 
     def create_attribute_entry(self, attribute, value, index):
         """为属性创建输入框。"""
